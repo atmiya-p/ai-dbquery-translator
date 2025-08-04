@@ -1,5 +1,5 @@
 import spacy
-import datetime
+from datetime import datetime
 import sqlite3
 
 DB_FILE_PATH = 'db/orders.db'
@@ -43,3 +43,42 @@ def parse_nl(query):
             entities["product"] = token.text
             break
 
+    select_all_query = "SELECT * FROM orders"
+    conditions_list = []  # will store all conditions in here and append later to the select all query
+
+    if entities["date"]:
+        # https://www.programiz.com/python-programming/datetime/strptime
+        date_string = entities["date"]
+        try:
+            date_object = datetime.strptime(date_string, "%B %d, %Y")
+            date_in_format = date_object.strftime('%Y-%m-%d')
+            conditions_list.append(f"order_date = '{date_in_format}'")
+        except ValueError:
+            try:
+                date_object = datetime.strptime(date_string, "%B %Y")
+                date_in_format = date_object.strftime('%Y-%m')
+                conditions_list.append(f"order_date = '{date_in_format}'")
+            except ValueError:
+                try:
+                    date_object = datetime.strptime(date_string, "%Y")
+                    date_in_format = date_object.strftime('%Y')
+                    conditions_list.append(f"order_date = '{date_in_format}'")
+                except ValueError:
+                    conditions_list.append(f"order_date LIKE '%{date_string}%")
+
+    if entities["person"]:
+        person = entities["person"].title()
+        conditions_list.append(f"customer_name = '{person}'")
+
+    if entities["product"]:
+        product = entities["product"].lower()
+        conditions_list.append(f"product_name = '{product}'")
+
+    if conditions_list:
+        new_query = f"'{select_all_query}' WHERE "
+        for condition in conditions_list:
+            new_query = f"'{new_query}' AND '{condition}'"
+    else:
+        new_query = select_all_query
+
+    return new_query
