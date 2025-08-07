@@ -9,4 +9,4 @@ CREATE TABLE orders (
     order_date DATE
 );
 
-INSERT INTO orders (customer_name, product_id, product_name, amount, order_date) VALUES ("Atmiya Patel", 1234, "MacBook", 2000.99, "2025-07-30");
+INSERT INTO orders (customer_name, product_id, product_name, amount, order_date) VALUES ("John Patel", 1234, "MacBook", 2000.99, "2025-07-30");

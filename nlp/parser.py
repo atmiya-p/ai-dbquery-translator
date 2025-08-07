@@ -4,8 +4,8 @@ import sqlite3
 
 DB_FILE_PATH = 'db/orders.db'
 
-# using pre trained english language model - en_core_web_sm
-nlp = spacy.load("en_core_web_sm")
+# using pre trained english language model - en_core_web_lg
+nlp = spacy.load("en_core_web_lg")
 
 
 # method to get the products in the database
@@ -68,15 +68,15 @@ def parse_nl(query):
                     conditions_list.append(f"order_date LIKE '%{date_string}%")
 
     if entities["person"]:
-        person = entities["person"].title()
-        conditions_list.append(f"customer_name = '{person}'")
+        person = entities["person"].lower()
+        conditions_list.append(f"LOWER(customer_name) = '{person}'")
 
     if entities["product"]:
         product = entities["product"].lower()
-        conditions_list.append(f"product_name = '{product}'")
+        conditions_list.append(f"LOWER(product_name) = '{product}'")
 
     if conditions_list:
-        new_query = f"'{select_all_query}' WHERE " + " AND ".join(conditions_list)
+        new_query = f"{select_all_query} WHERE " + " AND ".join(conditions_list)
     else:
         new_query = select_all_query
 
