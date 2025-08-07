@@ -7,6 +7,7 @@ DB_FILE_PATH = 'db/orders.db'
 # using pre trained english language model - en_core_web_sm
 nlp = spacy.load("en_core_web_sm")
 
+
 # method to get the products in the database
 def get_product_list(file_path):
 
@@ -75,9 +76,7 @@ def parse_nl(query):
         conditions_list.append(f"product_name = '{product}'")
 
     if conditions_list:
-        new_query = f"'{select_all_query}' WHERE "
-        for condition in conditions_list:
-            new_query = f"'{new_query}' AND '{condition}'"
+        new_query = f"'{select_all_query}' WHERE " + " AND ".join(conditions_list)
     else:
         new_query = select_all_query
 
