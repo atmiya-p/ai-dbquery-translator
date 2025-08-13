@@ -58,14 +58,14 @@ def parse_nl(query):
             try:
                 date_object = datetime.strptime(date_string, "%B %Y")
                 date_in_format = date_object.strftime('%Y-%m')
-                conditions_list.append(f"order_date = '{date_in_format}'")
+                conditions_list.append(f"order_date LIKE '{date_in_format}%'")
             except ValueError:
                 try:
                     date_object = datetime.strptime(date_string, "%Y")
                     date_in_format = date_object.strftime('%Y')
-                    conditions_list.append(f"order_date = '{date_in_format}'")
+                    conditions_list.append(f"order_date LIKE '{date_in_format}%'")
                 except ValueError:
-                    conditions_list.append(f"order_date LIKE '%{date_string}%")
+                    conditions_list.append(f"order_date LIKE '%{date_string}%'")
 
     if entities["person"]:
         person = entities["person"].lower()
