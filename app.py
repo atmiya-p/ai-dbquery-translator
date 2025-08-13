@@ -6,32 +6,43 @@ from nlp.parser import parse_nl
 st.title("Welcome to The SQL Query Genie")
 st.markdown("Talk to your data. We got the SQL stuff from here :)")
 
-st.subheader("Enter your question")
-user_input = st.text_input("Query in plain english")
+action = st.selectbox("What would you like to do?", ["Search Data", "Add Data", "Remove Data"])
 
-if user_input:
-    with st.spinner("Parsing your question"):
-        sql_query = parse_nl(user_input)
+conn = connect_db()
 
-    st.subheader("Generated SQL Query")
-    st.code(sql_query, language="sql")
+if isinstance(conn, str):
+    st.error(conn)
+else:
+    if action == "Search Data":
+        st.subheader("Enter your question")
+        user_input = st.text_input("Query in plain english")
 
-    conn = connect_db()
+        if user_input:
+            with st.spinner("Parsing your question"):
+                sql_query = parse_nl(user_input)
 
-    if isinstance(conn, str):
-        st.error(conn)
-    else:
-        with st.spinner("Executing query"):
-            result = execute_query(conn, sql_query)
+                st.subheader("Generated SQL Query")
+                st.code(sql_query, language="sql")
 
-        if isinstance(result, str):
-            st.error(result)
-        else:
-            columns, rows = result
-            if rows:
-                st.success(f"Found {len(rows)} rows")
-                df = pd.DataFrame(rows, columns=columns)
-                st.dataframe(df, use_container_width=True)
 
-            else:
-                st.warning("No results for that query")
+                with st.spinner("Executing query"):
+                    result = execute_query(conn, sql_query)
+
+                if isinstance(result, str):
+                    st.error(result)
+                else:
+                    columns, rows = result
+                    if rows:
+                        st.success(f"Found {len(rows)} rows")
+                        df = pd.DataFrame(rows, columns=columns)
+                        st.dataframe(df, use_container_width=True)
+
+                    else:
+                        st.warning("No results for that query")
+
+    elif action == "Add Data":
+        st.markdown("Still working on this")
+
+    elif action == "Remove Data":
+        st.markdown("Still working on this")
+
