@@ -15,9 +15,13 @@ def execute_query(conn, query):
         cursor = conn.cursor()
         cursor.execute(query)
         rows = cursor.fetchall()
-        columns = []
-        for description in cursor.description:
-            columns.append(description[0])
-        return columns, rows
+
+        if query.strip().lower().startswith("select"):
+            columns = []
+            for description in cursor.description:
+                columns.append(description[0])
+            return columns, rows
+        else:
+            return True
     except Exception as e:
         return f"Error: {e}"
