@@ -1,12 +1,12 @@
 import streamlit as st
 import pandas as pd
 from utils.db_utils import connect_db, execute_query
-from nlp.parser import parse_nl
+from nlp.parser import parse_nl, get_product_list
 
 st.title("Welcome to The SQL Query Genie")
 st.markdown("Talk to your data. We got the SQL stuff from here :)")
 
-action = st.selectbox("What would you like to do?", ["Search Data", "Add Data", "Remove Data"])
+action = st.selectbox("What would you like to do?", ["Search Data", "Add Data", "Remove Data", "Manage Products"])
 
 conn = connect_db()
 
@@ -61,13 +61,24 @@ else:
             if not customer_name_input or not product_id_input or not product_name_input:
                 st.error("Please make sure you have filled the customer name, product id, and product name.")
             else:
-                sql_query_add = f"INSERT INTO orders (customer_name, product_id, product_name, amount, order_date) VALUES ('{customer_name_input}', {product_id_input}, '{product_name_input}', {amount_input}, '{order_date_input}')"
-                result = execute_query(conn, sql_query_add)
-                if isinstance(result, str):
-                    st.error(result)
-                else:
+                try:
+                    cursor = conn.cursor()
+                    sql_query_add = f"INSERT INTO orders (customer_name, product_id, product_name, amount, order_date) VALUES ('{customer_name_input}', {product_id_input}, '{product_name_input}', {amount_input}, '{order_date_input}')"
+                    cursor.execute(sql_query_add)
+                    conn.commit()
                     st.success("This record was added successfully!")
+                except Exception as e:
+                    st.error(f"An error occurred: {e}")
 
     elif action == "Remove Data":
         st.markdown("Still working on this")
+
+    elif action == "Manage Products":
+        st.subheader("Manage the Products")
+        product_action = st.selectbox("What would you like to do?", ["View Products", "Add Products", "Remove Products"])
+
+        if product_action == "View Products":
+            product_list = get_product_list('db/orders.db')
+            df = pd.DataFrame(product_list, columns=["Product"])
+            st.dataframe(df, use_container_width=True)
 

@@ -22,6 +22,8 @@ def execute_query(conn, query):
                 columns.append(description[0])
             return columns, rows
         else:
+            cursor.execute(query)
+            conn.commit()
             return True
     except Exception as e:
         return f"Error: {e}"
