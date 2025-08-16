@@ -7,23 +7,19 @@ DB_FILE_PATH = 'db/orders.db'
 # using pre trained english language model - en_core_web_lg
 nlp = spacy.load("en_core_web_lg")
 
+products = []
+
 
 # method to get the products in the database
-def get_product_list(file_path):
-
-    # default products we already have
-    products = ["macbook", "ipad", "iphone", "apple tv", "airpods"]
-    try:
-        connection = sqlite3.connect(file_path)
-        cursor = connection.cursor()
-        cursor.execute("SELECT DISTINCT LOWER(product_name) FROM orders")
-        for row in cursor.fetchall():
-            if row[0] not in products:
-                products.append(row[0])
-        connection.close()
-    except Exception as exception:
-        print("There was an issue with fetching the product names from the db: ", exception)
+def get_product_list():
     return products
+
+
+def add_products(product):
+    if product.lower() in products:
+        return False
+    products.append(product.lower())
+    return True
 
 
 def parse_nl(query):

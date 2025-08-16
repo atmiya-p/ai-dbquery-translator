@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from utils.db_utils import connect_db, execute_query
-from nlp.parser import parse_nl, get_product_list
+from nlp.parser import parse_nl, get_product_list, add_products
 
 st.title("Welcome to The SQL Query Genie")
 st.markdown("Talk to your data. We got the SQL stuff from here :)")
@@ -23,7 +23,6 @@ else:
 
                 st.subheader("Generated SQL Query")
                 st.code(sql_query, language="sql")
-
 
                 with st.spinner("Executing query"):
                     result = execute_query(conn, sql_query)
@@ -52,7 +51,7 @@ else:
         st.subheader("Add a new record")
         customer_name_input = st.text_input("Enter customer name")
         product_id_input = st.number_input("Enter product id", min_value=0, step=1)
-        product_name_input = st.text_input("Enter product name")
+        product_name_input = st.selectbox("Select Product", get_product_list())
         amount_input = st.number_input("Enter amount (without $ sign and 2 decimal places)", min_value=0.00, format="%.2f")
         order_date_input = st.text_input("Enter order date (Format: YYYY-MM-DD)")
 
@@ -78,7 +77,17 @@ else:
         product_action = st.selectbox("What would you like to do?", ["View Products", "Add Products", "Remove Products"])
 
         if product_action == "View Products":
-            product_list = get_product_list('db/orders.db')
+            product_list = get_product_list()
             df = pd.DataFrame(product_list, columns=["Product"])
             st.dataframe(df, use_container_width=True)
 
+        elif product_action == "Add Products":
+            st.subheader("Add a new Product")
+            new_product = st.text_input("Enter Name of New Product")
+            add_product_button = st.button("Add Product")
+
+            if add_product_button:
+                if add_products(new_product):
+                    st.success("Product was successfully added")
+                else:
+                    st.error("Product already exists")
