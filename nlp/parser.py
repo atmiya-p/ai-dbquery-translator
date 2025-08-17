@@ -12,14 +12,42 @@ products = []
 
 # method to get the products in the database
 def get_product_list():
-    return products
+    conn = sqlite3.connect(DB_FILE_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT product_name FROM products ORDER BY product_name")
+    all_products = cursor.fetchall()
+    conn.close()
+    list_of_all_products = []
+    for product in all_products:
+        product_name = product[0]
+        list_of_all_products.append(product_name)
+    return list_of_all_products
 
 
 def add_products(product):
-    if product.lower() in products:
+    conn = sqlite3.connect(DB_FILE_PATH)
+    cursor = conn.cursor()
+    try:
+        cursor.execute("INSERT INTO products (product_name) VALUES (?)", (product.lower(),))
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        conn.close()
         return False
-    products.append(product.lower())
-    return True
+
+
+def remove_products(product):
+    conn = sqlite3.connect(DB_FILE_PATH)
+    cursor = conn.cursor()
+    try:
+        cursor.execute("DELETE FROM products WHERE product_name = ?", (product.lower(),))
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        conn.close()
+        return False
 
 
 def parse_nl(query):
@@ -34,7 +62,7 @@ def parse_nl(query):
         elif entity.label_ == "PERSON":
             entities["person"] = entity.text
 
-    products = get_product_list(DB_FILE_PATH)
+    products = get_product_list()
     for token in doc_object:
         if token.text in products:
             entities["product"] = token.text

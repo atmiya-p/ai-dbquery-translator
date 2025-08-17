@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from utils.db_utils import connect_db, execute_query
-from nlp.parser import parse_nl, get_product_list, add_products
+from nlp.parser import parse_nl, get_product_list, add_products, remove_products
 
 st.title("Welcome to The SQL Query Genie")
 st.markdown("Talk to your data. We got the SQL stuff from here :)")
@@ -50,19 +50,18 @@ else:
     elif action == "Add Data":
         st.subheader("Add a new record")
         customer_name_input = st.text_input("Enter customer name")
-        product_id_input = st.number_input("Enter product id", min_value=0, step=1)
         product_name_input = st.selectbox("Select Product", get_product_list())
         amount_input = st.number_input("Enter amount (without $ sign and 2 decimal places)", min_value=0.00, format="%.2f")
         order_date_input = st.text_input("Enter order date (Format: YYYY-MM-DD)")
 
         add_button = st.button("Add Record")
         if add_button:
-            if not customer_name_input or not product_id_input or not product_name_input:
-                st.error("Please make sure you have filled the customer name, product id, and product name.")
+            if not customer_name_input or not product_name_input:
+                st.error("Please make sure you have filled the customer name and product name.")
             else:
                 try:
                     cursor = conn.cursor()
-                    sql_query_add = f"INSERT INTO orders (customer_name, product_id, product_name, amount, order_date) VALUES ('{customer_name_input}', {product_id_input}, '{product_name_input}', {amount_input}, '{order_date_input}')"
+                    sql_query_add = f"INSERT INTO orders (customer_name, product_name, amount, order_date) VALUES ('{customer_name_input}', '{product_name_input}', {amount_input}, '{order_date_input}')"
                     cursor.execute(sql_query_add)
                     conn.commit()
                     st.success("This record was added successfully!")
@@ -91,3 +90,14 @@ else:
                     st.success("Product was successfully added")
                 else:
                     st.error("Product already exists")
+
+        elif product_action == "Remove Products":
+            st.subheader("Remove a Product")
+            product_to_remove = st.selectbox("Remove Product", get_product_list())
+            remove_button = st.button("Remove Product")
+            if remove_button:
+                if remove_products(product_to_remove):
+                    st.success("Product was successfully removed")
+                else:
+                    st.error("Product could not be removed")
+
