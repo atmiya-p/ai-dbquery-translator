@@ -39,14 +39,6 @@ else:
                     else:
                         st.warning("No results for that query")
 
-            '''
-   order_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    customer_name TEXT NOT NULL,
-    product_id INTEGER NOT NULL,
-    product_name TEXT NOT NULL,
-    amount FLOAT,
-    order_date DATE
-        '''
     elif action == "Add Data":
         st.subheader("Add a new record")
         customer_name_input = st.text_input("Enter customer name")
@@ -61,10 +53,16 @@ else:
             else:
                 try:
                     cursor = conn.cursor()
-                    sql_query_add = f"INSERT INTO orders (customer_name, product_name, amount, order_date) VALUES ('{customer_name_input}', '{product_name_input}', {amount_input}, '{order_date_input}')"
-                    cursor.execute(sql_query_add)
-                    conn.commit()
-                    st.success("This record was added successfully!")
+                    cursor.execute("SELECT product_id FROM products WHERE product_name = ?", (product_name_input.lower(),))
+                    product_id = cursor.fetchone()
+
+                    if product_id:
+                        sql_query_add = f"INSERT INTO orders (customer_name, product_id, amount, order_date) VALUES (?, ?, ?, ?)"
+                        cursor.execute(sql_query_add, (customer_name_input, product_id[0], amount_input, order_date_input))
+                        conn.commit()
+                        st.success("This record was added successfully!")
+                    else:
+                        st.error("Product does not exist in the products table")
                 except Exception as e:
                     st.error(f"An error occurred: {e}")
 
@@ -93,11 +91,12 @@ else:
 
         elif product_action == "Remove Products":
             st.subheader("Remove a Product")
-            product_to_remove = st.selectbox("Remove Product", get_product_list())
+            product_to_remove = st.selectbox("Select Product to Remove", get_product_list())
+            st.warning("Warning! By removing this product, you will remove all records in the order table with any purchases of this product. Are you sure you'd like to continue?")
+            confirm = st.checkbox("Yes, I want to remove this product and all related orders")
             remove_button = st.button("Remove Product")
-            if remove_button:
+            if remove_button and confirm:
                 if remove_products(product_to_remove):
                     st.success("Product was successfully removed")
                 else:
                     st.error("Product could not be removed")
-

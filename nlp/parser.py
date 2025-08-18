@@ -68,7 +68,7 @@ def parse_nl(query):
             entities["product"] = token.text
             break
 
-    select_all_query = "SELECT * FROM orders"
+    select_all_query = "SELECT o.order_id, o.customer_name, p.product_name, o.amount, o.order_date FROM orders o JOIN products p ON o.product_id = p.product_id"
     conditions_list = []  # will store all conditions in here and append later to the select all query
 
     if entities["date"]:
