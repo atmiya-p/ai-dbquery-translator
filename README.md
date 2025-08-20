@@ -32,7 +32,7 @@ Users are able to **add and remove records to the database** in a user-friendly 
   Output: SELECT * FROM orders WHERE LOWER(customer_name) = 'john smith' AND order_date LIKE '2025-07%'
   ```
 
-# Requirments
+# Requirements
 * Python 3.9+
 * pip
 * streamlit
