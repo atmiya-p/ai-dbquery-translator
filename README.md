@@ -31,3 +31,22 @@ Users are able to **add and remove records to the database** in a user-friendly 
   User Input: "Show me all orders from John Smith in July 2025"
   Output: SELECT * FROM orders WHERE LOWER(customer_name) = 'john smith' AND order_date LIKE '2025-07%'
   ```
+
+# Requirments
+* Python 3.9+
+* pip
+* streamlit
+* spacy
+* sqlite3
+
+# Database Setup
+* Initialize the database by running the following:
+  ```
+  sqlite3 db/orders.db < db/schema.sql
+  ```
+
+# Running the app
+* Enter the following command:
+  ```
+  streamlit run app.py
+  ```
